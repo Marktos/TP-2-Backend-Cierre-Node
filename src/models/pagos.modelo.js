@@ -19,8 +19,8 @@ const Payment = db.define('Payment', {
 
 //Hago la relacion para que un recibo pertenezca a un solo usuario
 Payment.belongsTo(User, {
-  foreignKey: 'userId', // Define el campo clave foránea en el modelo Payment
-  as: 'user' // Alias opcional para la relación
+  foreignKey: 'userId', 
+  as: 'user'
 });
 
 export default Payment
