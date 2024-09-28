@@ -1,4 +1,4 @@
-import { Payment } from '../models/pagos.model.js';
+import { Payment } from '../models/pagos.modelo.js';
 
 
 // Registrar un pago

@@ -10,13 +10,14 @@ const Payment = db.define('Payment', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-
+  
   receiptUrl: {
     type: DataTypes.STRING,  // URL del recibo PDF
     allowNull: true
   }
 });
 
+//Hago la relacion para que un recibo pertenezca a un solo usuario
 Payment.belongsTo(User, {
   foreignKey: 'userId', // Define el campo clave foránea en el modelo Payment
   as: 'user' // Alias opcional para la relación

@@ -9,7 +9,7 @@ import bcrypt from 'bcrypt';
  */
 export function generateToken(payload) {
   const options = {
-    expiresIn: "180d",
+    expiresIn: "30d",
   };
   const token = jwt.sign(payload, "secreto", options);
   return token;
@@ -21,7 +21,7 @@ export function generateToken(payload) {
  * @param {string} password - La contraseña en texto que se va a hasheada
  * @returns {Promise<string>} El hash de la contraseña
  */
-export const hashPassword = async (password) => {
+export const passwordHashed = async (password) => {
   const salt = await bcrypt.genSalt(10);
   return await bcrypt.hash(password, salt);
 };
