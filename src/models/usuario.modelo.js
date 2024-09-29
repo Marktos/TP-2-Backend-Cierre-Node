@@ -1,7 +1,7 @@
 //Importamos la base de datos y los DataTypes
-import { DataTypes,  } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import db from '../config/db.js';
-import Payment from './pagos.model.js';
+import Payment from './pagos.modelo.js';
 
 export const User = db.define('User', {
   username: {

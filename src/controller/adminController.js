@@ -1,5 +1,5 @@
 import Admin from "../models/admin.modelo.js";
-import { passwordHashed } from "../helpers/passwordHashed"; 
+import { passwordHashed } from "../helpers/passwordHashed.js"; 
 import User from "../models/usuario.modelo.js"
 
 /** Creo a mi superusuario */
@@ -15,8 +15,10 @@ const createSuper = async () => {
         })
     }
 };
+createSuper()
 
 const createAdmin = async (req, res) =>{
+    const { email } = req.body;
     //Vamos a verificar si el usuario ya fue creado primero
     let existe = await User.findOne ({ where: ( email )});
     if (!existe) existe = await Admin.findOne({ where: ( email ) });
@@ -26,6 +28,7 @@ const createAdmin = async (req, res) =>{
     const usuario = await Admin.create(req.body)
 
     //Vamos a hashear la contrasenia con mi funcion passwordHashed
+    const { password } = req.body;
     usuario.password = await passwordHashed(password)
 
     //Guardamos nuestro usuario
@@ -37,11 +40,11 @@ const createAdmin = async (req, res) =>{
 }
 
 const updateAdmin = async (req, res) => {
-    const {IdAdmin} = req.params
+    const { adminId } = req.params;
     //Hacemos un try-catch para ver si el usuario existe y actualizarlo 
     try {
         //revisamos si es que existe
-        const admin = await Admin.findByPk( {admin: email } )
+        const admin = await Admin.findByPk(adminId);
         if (!admin) return res.status(404).send('No existe ningun admin con ese email')
 
         //espero a que se actualice el usuario/admin y lo guardo
@@ -81,12 +84,13 @@ const getAdmin = async (req, res) => {
 };
 
 const getAdminId = async (req, res) => {
-    const {IdAdmin} = req.params
+    const { adminId } = req.params;
     try {
         //Hacemos una funcion para ver si existe ese usuario
-        const admin = await Admin.findByPk(IdAdmin)
+        const admin = await Admin.findByPk(adminId)
         //Si ve que no existe envia un 404 y retorna que el usuario no existe
         if (!admin) return res.status(404).send('El administrador no existe')
+        return res.json({ data: admin });
     } catch (error) {
         //hago un catch en el caso de que algo falle y que devuelva un 500 errors
         res.status(500).send('Ocurrio un error')
@@ -94,4 +98,4 @@ const getAdminId = async (req, res) => {
 }
 
 
-export {createSuper, createAdmin, updateAdmin, getAdmin, getAdminId, updateAdmin, deleteAdmin}
+export {createSuper, createAdmin, updateAdmin, getAdmin, getAdminId, deleteAdmin}

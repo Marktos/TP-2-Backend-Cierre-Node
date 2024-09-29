@@ -2,14 +2,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import fileUpload from 'express-fileupload';
+import cors from 'cors'
 
 //mis rutas importadas
 import db from './src/config/db.js';
-import router from './src/routes/pagosRoutes.js';
 import adminRouter from './src/routes/adminRoutes.js'
 import authRouter from './src/routes/authRoutes.js'
-import userRouter from './src/routes/userRoutes.js'
-import pagoRouter from './src/routes/pagosRoutes.js'
+import usuarioRoutes from './src/routes/usuarioRoutes.js'
+import pagosRoutes from './src/routes/pagosRoutes.js'
 
 
 
@@ -23,7 +23,9 @@ async function startServer() {
         console.log('La sincronizacion fue exitosa');
     } catch (error) {
         console.log('Error, no se pudo conectar a la base de datos!');
+        return;
     }
+
     app.listen(PORT, () => {
         console.log(`Servidor corriendo y funcionando en el puerto ${PORT}`);
     });
@@ -47,12 +49,12 @@ app.use(fileUpload({
 }));
 
 app.use(express.json());
-app.use(cors({}))
+app.use(cors())
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }))
 
 //rutas
-app.use('/user', usuarioRoutes);
+app.use('/api/users', usuarioRoutes);
 app.use('/api/admins', adminRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/pagos', pagosRoutes);

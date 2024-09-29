@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Subida de Archivos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Subida de Archivos</h1>
+<form id="uploadForm" enctype="multipart/form-data">
+    <label for="file">Selecciona un archivo para subir:</label>
+    <input type="file" id="file" name="file" required>
+    <button type="submit">Subir Archivo</button>
+</form>
+
+<div id="message"></div>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevenir el envío del formulario
+
+        const formData = new FormData(this); // Crear un objeto FormData
+
+        // Enviar el archivo usando Fetch API
+        fetch('/api/pagos/upload', { // Cambia esta URL a la ruta de tu servidor que maneje la subida
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('message').innerText = data.message; // Mostrar mensaje de éxito o error
+        })
+        .catch(error => {
+            document.getElementById('message').innerText = 'Error al subir el archivo: ' + error.message;
+        });
+    });
+</script>
+
+</body>
+</html>

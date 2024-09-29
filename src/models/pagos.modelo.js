@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { db } from '../config/db.js';
+import User from '../models/usuario.modelo.js';
 
 const Payment = db.define('Payment', {
   amount: {

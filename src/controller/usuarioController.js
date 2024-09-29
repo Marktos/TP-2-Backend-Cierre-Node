@@ -1,7 +1,7 @@
 //Importo el metodo para hashear las contraseñas y mis dos modelos de User y Admin
-import { passwordHashed } from "../helpers/passwordHashed";
-import User from "../models/usuario.modelo";
-import Admin from "../models/admin.modelo";
+import { passwordHashed } from "../helpers/passwordHashed.js";
+import User from "../models/usuario.modelo.js"; 
+import Admin from "../models/admin.modelo.js"; 
 
 //Creamos un nuevo usuario
 const createUser = async (req, res) => {
@@ -82,4 +82,4 @@ const getUserById = async (req, res) => {
     }
 };
 
-export {createUser, getAllUsers, getUserById, }
+export {createUser, getAllUsers, getUserById, deleteUser, updateUser}
