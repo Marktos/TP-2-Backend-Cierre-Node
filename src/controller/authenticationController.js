@@ -27,7 +27,7 @@ const login = async (req, res) => {
     const token = generateToken({
         id: user.id,
         email: user.email,
-        rol: 'rol' in user ? user.rol :'user'
+        role: 'role' in user ? user.role :'user'
     })
     res.status(200).json({ token: token})
 }

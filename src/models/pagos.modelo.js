@@ -1,8 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { db } from '../config/db.js';
-import User from '../models/usuario.modelo.js';
 
-const Payment = db.define('Payment', {
+const Payment = db.define('payment', {
   amount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
@@ -13,15 +12,10 @@ const Payment = db.define('Payment', {
   },
   
   receiptUrl: {
-    type: DataTypes.STRING,  // URL del recibo PDF
+    type: DataTypes.STRING,  // URL del archivo PDF
     allowNull: true
   }
 });
 
-//Hago la relacion para que un recibo pertenezca a un solo usuario
-Payment.belongsTo(User, {
-  foreignKey: 'userId', 
-  as: 'user'
-});
 
 export default Payment

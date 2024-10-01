@@ -1,9 +1,8 @@
 //Importamos la base de datos y los DataTypes
 import { DataTypes } from 'sequelize';
 import db from '../config/db.js';
-import Payment from './pagos.modelo.js';
 
-export const User = db.define('User', {
+const User = db.define('user', {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -23,10 +22,6 @@ export const User = db.define('User', {
     
   }
 });
-//Hago la relacion para que un usuario pueda tener varios pagos
-User.hasMany(Payment, {
-  foreignKey: "userId", 
-  as: 'payments'
-})
+
 
 export default User

@@ -2,7 +2,7 @@
 import { DataTypes } from 'sequelize';
 import db from '../config/db.js';
 
-export const Admin = db.define('Admins', {
+const Admin = db.define('admins', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -20,6 +20,8 @@ export const Admin = db.define('Admins', {
     type: DataTypes.STRING,
     defaultValue: "admin"
   }
+}, {
+  tableName: 'admins'
 });
 
 export default Admin

@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import { createAdmin, getAdmin, updateAdmin, deleteAdmin, getAdminId } from '../controller/adminController.js';
-import { isSuperAdmin } from '../middlewares/authorization.js';
+import { isAdmin, isSuperAdmin } from '../middlewares/authorization.js';
 import { handleErrors } from '../middlewares/handleErrors.js'
-import { verifyToken } from '../middlewares/tokenVerification.js';
 import { body, param } from 'express-validator';
 
 const router = Router();
 
-router.use(verifyToken, isSuperAdmin);
+router.use( isSuperAdmin, isAdmin);
 
 //Obtene todos los administradores
 router.get('/', getAdmin);

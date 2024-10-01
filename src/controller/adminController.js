@@ -2,42 +2,61 @@ import Admin from "../models/admin.modelo.js";
 import { passwordHashed } from "../helpers/passwordHashed.js"; 
 import User from "../models/usuario.modelo.js"
 
-/** Creo a mi superusuario */
 const createSuper = async () => {
-    const superUser = await Admin.findOne({where: {rol: 'superadmin'}})
-    const password = await hashPassword('superadmin')
-    if(!superUser) {
-        Admin.create({
-            name: 'root',
-            email: 'root@admin.com',
-            password,
-            rol: 'superadmin'
-        })
+    try {
+        // Busca si ya existe un superadmin
+        const superUser = await Admin.findOne({ where: { role: 'superadmin' } });
+
+        // Hashea la contraseña
+        const password = await passwordHashed('superadmin');
+
+        // Si no existe, crea el superadmin
+        if (!superUser) {
+            await Admin.create({
+                name: 'root',
+                email: 'root@admin.com',
+                password,
+                role: 'superadmin',
+            });
+            console.log('Superadmin creado exitosamente.');
+        } else {
+            console.log('El superadmin ya existe.');
+        }
+    } catch (error) {
+        console.error('Error al crear el superadmin:', error.message);
     }
 };
-createSuper()
+createSuper();
 
-const createAdmin = async (req, res) =>{
-    const { email } = req.body;
-    //Vamos a verificar si el usuario ya fue creado primero
-    let existe = await User.findOne ({ where: ( email )});
-    if (!existe) existe = await Admin.findOne({ where: ( email ) });
-    //Si existe retorno un 409 y devulvo que ya existe
-    if (existe) return res.status(409).send('El usuario ya existe');
 
-    const usuario = await Admin.create(req.body)
+const createAdmin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    //Vamos a hashear la contrasenia con mi funcion passwordHashed
-    const { password } = req.body;
-    usuario.password = await passwordHashed(password)
+        // Verifica si el usuario ya fue creado
+        let existe = await User.findOne({ where: { email } });
+        if (!existe) {
+            existe = await Admin.findOne({ where: { email } });
+        }
 
-    //Guardamos nuestro usuario
-    await usuario.save()
+        // Si existe, retorno un 409
+        if (existe) {
+            return res.status(409).send('El usuario ya existe');
+        }
 
-    //Retornamos un 201 por usuario creado exitosamente
-    return res.status(201).json({ data: {usuario: usuario.name, email}})
+        // Hashear la contraseña
+        req.body.password = await passwordHashed(password); 
+        
+        // Crear el nuevo administrador
+        const usuario = await Admin.create(req.body);
 
-}
+        // Retornar un 201 por usuario creado exitosamente
+        return res.status(201).json({ data: { usuario: usuario.name, email } });
+    } catch (error) {
+        console.error('Error al crear el administrador:', error);
+        return res.status(500).send('Error interno del servidor');
+    }
+};
 
 const updateAdmin = async (req, res) => {
     const { adminId } = req.params;

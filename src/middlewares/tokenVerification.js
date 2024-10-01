@@ -8,10 +8,11 @@ const verifyToken = async (req, res, next) => {
   const auth = req.headers["authorization"];
   const token = auth && auth.split(" ")[1];
 
-  if (token == null) return res.status(401).send('Sin token en el header');
+  if (!token) return res.status(401).send('Sin token en el header');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     let user = await Admin.findByPk(decoded.id);
 
     if (!user) {
@@ -22,7 +23,7 @@ const verifyToken = async (req, res, next) => {
       return res.status(409).send('Usuario no válido');
     }
 
-    req.user = { id: decoded.id, email: decoded.email, rol: decoded.rol };
+    req.user = { id: decoded.id, email: decoded.email, role: decoded.role };
     next();
   } catch (error) {
     return res.status(403).send("Token no válido");
