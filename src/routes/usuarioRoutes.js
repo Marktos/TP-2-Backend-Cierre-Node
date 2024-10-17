@@ -9,7 +9,7 @@ import { createUser, deleteUser, getUserById, getAllUsers, updateUser } from '..
 const router = Router();
 
 //Middleware para verificar si el token y el rol es de administrador
-router.use(verifyToken, isAdmin);
+router.use(isAdmin);
 
 //Ruta para registrar a un nuevo usuario
 router.post('/register', 
