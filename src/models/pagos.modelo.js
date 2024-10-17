@@ -1,20 +1,30 @@
 import { DataTypes } from 'sequelize';
-import { db } from '../config/db.js';
+import db from '../config/db.js';
 import User from './usuario.modelo.js';
 
 const Payment = db.define('Payment', {
   recipId: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
+    validate: {
+      notEmpty: true,
+    }
   },
   amount: {
     type: DataTypes.FLOAT,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      isFloat: true,
+      min: 0,
+    }
   },
   receiptUrl: {
-    type: DataTypes.STRING,  // URL del archivo PDF
-    allowNull: true
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isUrl: true, // Verificar que sea una URL válida
+    }
   },
   dateCompra: {
     type: DataTypes.DATE,
@@ -23,7 +33,6 @@ const Payment = db.define('Payment', {
   }
 });
 
-Payment.belongsTo(User, { foreignKey: 'userId' })
+Payment.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
-
-export default Payment
+export default Payment;

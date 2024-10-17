@@ -6,11 +6,7 @@ import cors from 'cors'
 
 //mis rutas importadas
 import db from './src/config/db.js';
-import adminRouter from './src/routes/adminRoutes.js'
 import authRouter from './src/routes/authRoutes.js'
-import usuarioRoutes from './src/routes/usuarioRoutes.js'
-import pagosRoutes from './src/routes/pagosRoutes.js'
-import { createSuper } from './src/controller/adminController.js';
 
 //confiracion de las variables de entorno
 dotenv.config()
@@ -32,10 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }))
 
 //rutas
-app.use('/api/users', usuarioRoutes);
-app.use('/api/admins', adminRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/pagos', pagosRoutes);
 
 // Conexion a mi base de datos
 async function startServer() {
