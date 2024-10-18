@@ -21,7 +21,7 @@ db.authenticate()
     console.log('Conexión a la base de datos establecida correctamente.');
 
     // Sincronizar la base de datos, forzando la recreación de las tablas
-    return db.sync({ force: true });
+    return db.sync();
   })
   .then(() => {
     console.log('Base de datos sincronizada correctamente. Todas las tablas han sido recreadas.');
