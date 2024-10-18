@@ -1,14 +1,14 @@
 import request from 'supertest'; // Simula peticiones HTTP
-import app from '../app';         // Importamos la app de Express
-import User from '../models/usuario.modelo.js'; // Mockeamos el modelo User
-import Payment from '../models/pagos.modelo.js'; // Mockeamos el modelo Payment
+import app from '../../../app.js';         // Importamos la app de Express
+import User from '../../models/usuario.modelo.js'; // Mockeamos el modelo User
+import Payment from '../../models/pagos.modelo.js'; // Mockeamos el modelo Payment
 import fs from 'fs';
 import axios from 'axios';
 import path from 'path';
 
 // Mockeamos los modelos y librerías para evitar interacciones reales con la base de datos y sistema de archivos
-jest.mock('../models/usuario.modelo.js');
-jest.mock('../models/pagos.modelo.js');
+jest.mock('../../models/usuario.modelo.js');
+jest.mock('../../models/pagos.modelo.js');
 jest.mock('axios');
 jest.mock('fs');
 jest.mock('path');

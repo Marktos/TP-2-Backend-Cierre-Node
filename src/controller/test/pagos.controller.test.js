@@ -1,96 +1,134 @@
-// Importamos las dependencias necesarias para los tests
-import request from 'supertest'; // Simula peticiones HTTP
-import app from '../app';         // Importamos la app de Express
-import Payment from '../models/pagos.modelo.js'; // Importamos el modelo Payment
+import request from 'supertest';
+import app from '../../../app.js'
+import User from '../../usuario.modelo.jsmodels/User';
+import Payment from '../../pagos.modelo.jsmodels/';
+import db from '../../config/db.js';
+import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import axios from 'axios';
+import { isSuperAdmin } from '../usuarioController.js';
 
-// Mockeamos el modelo Payment para evitar interacciones reales con la base de datos
-jest.mock('../models/pagos.modelo.js');
+dotenv.config();
 
-describe('Payments Controller', () => {
-  
-  // Test para la función de crear un nuevo pago
-  describe('POST /payments', () => {
-    it('debería crear un nuevo pago y devolver la información del pago', async () => {
-      // Simulamos que la creación del pago en la base de datos es exitosa
-      const mockPayment = {
-        id: 1,
-        reciboId: 123,
-        amount: 500,
-        receipt: null,
-        fechaCompra: new Date(),
-        userId: 1
-      };
-      Payment.create.mockResolvedValue(mockPayment);
+beforeAll(async () => {
+  await db.sync(); //sincroniza las tablas antes de ejecutar los tests
+});
 
-      // Hacemos una petición POST simulada a la ruta /payments con un usuario autenticado
+// Poblar datos antes de cada prueba
+beforeEach(async () => {
+  const hashedPassword = await bcrypt.hash('123456', 10);
+  await User.create({
+    name: 'Admin',
+    email: 'admin@example.com',
+    password: hashedPassword,
+    role: 'superadmin'
+  });
+});
+
+describe('User Controller', () => {
+  describe('createUser', () => {
+    it('should create a new user with hashed password', async () => {
+      const userPayload = { name: 'John', email: 'john@example.com', password: '123456', role: 'user' };
+
+      // Hacer la petición para crear un usuario
       const res = await request(app)
-        .post('/payments')
-        .set('Authorization', 'Bearer fake-jwt-token') // Simulamos la autorización JWT
-        .send({
-          reciboId: 123,
-          amount: 500
-        });
+        .post('/api/users')
+        .send(userPayload)
+        .set('Authorization', 'Bearer fakeTokenWithSuperAdminRole');
 
-      // Verificamos que el estado de la respuesta sea 201 (creado)
-      expect(res.status).toBe(201);
-      // Verificamos que en el cuerpo de la respuesta esté la información del pago
-      expect(res.body.payment).toEqual(mockPayment);
+      expect(res.statusCode).toBe(201);
+      expect(res.body.message).toBe('Usuario creado correctamente');
     });
 
-    it('debería devolver un error si la creación del pago falla', async () => {
-      // Simulamos que ocurre un error durante la creación del pago
-      Payment.create.mockRejectedValue(new Error('Error en la creación del pago'));
+    it('should prevent creation of admin by non-superadmin', async () => {
+      const userPayload = { name: 'John', email: 'john@example.com', password: '123456', role: 'admin' };
 
-      // Hacemos una petición POST simulada a la ruta /payments con un usuario autenticado
       const res = await request(app)
-        .post('/payments')
-        .set('Authorization', 'Bearer fake-jwt-token')
-        .send({
-          reciboId: 123,
-          amount: 500
-        });
+        .post('/api/users')
+        .send(userPayload)
+        .set('Authorization', 'Bearer fakeTokenWithAdminRole');
 
-      // Verificamos que el estado de la respuesta sea 400 (error del cliente)
-      expect(res.status).toBe(400);
-      // Verificamos que en el cuerpo de la respuesta esté el mensaje de error
-      expect(res.body.error).toBe('Error en la creación del pago');
+      expect(res.statusCode).toBe(403);
+      expect(res.body.message).toBe('No tienes permisos para crear administradores.');
     });
   });
+});
 
-  // Test para la función de obtener los pagos de un usuario
-  describe('GET /payments', () => {
-    it('debería devolver todos los pagos del usuario autenticado', async () => {
-      // Simulamos que se encuentran pagos asociados al usuario
-      const mockPayments = [
-        { id: 1, reciboId: 123, amount: 500, receipt: null, fechaCompra: new Date(), userId: 1 },
-        { id: 2, reciboId: 456, amount: 300, receipt: null, fechaCompra: new Date(), userId: 1 }
-      ];
-      Payment.findAll.mockResolvedValue(mockPayments);
-
-      // Hacemos una petición GET simulada a la ruta /payments con un usuario autenticado
-      const res = await request(app)
-        .get('/payments')
-        .set('Authorization', 'Bearer fake-jwt-token'); // Simulamos la autorización JWT
-
-      // Verificamos que el estado de la respuesta sea 200 (OK)
-      expect(res.status).toBe(200);
-      // Verificamos que en el cuerpo de la respuesta estén los pagos del usuario
-      expect(res.body.payments).toEqual(mockPayments);
+describe('getUserPayments', () => {
+  it('should return user payments', async () => {
+    // Crear un usuario y pagos para la prueba
+    const user = await User.create({
+      name: 'User',
+      email: 'user@example.com',
+      password: 'password123',
+      role: 'user'
     });
 
-    it('debería devolver un error si ocurre un problema al obtener los pagos', async () => {
-      // Simulamos un error durante la búsqueda de pagos
-      Payment.findAll.mockRejectedValue(new Error('Error al obtener pagos'));
+    await Payment.create({ amount: 100, userId: user.id });
+    await Payment.create({ amount: 200, userId: user.id });
 
-      // Hacemos una petición GET simulada a la ruta /payments con un usuario autenticado
-      const res = await request(app)
-        .get('/payments')
-        .set('Authorization', 'Bearer fake-jwt-token');
+    // Realizar la petición para obtener pagos
+    const res = await request(app)
+      .get('/api/payments')
+      .set('Authorization', 'Bearer fakeTokenWithUserRole');
 
-      // Verificamos que el estado de la respuesta sea 400 (error del cliente)
-      expect(res.status).toBe(400);
-      // Verificamos que en el cuerpo de la respuesta esté el mensaje de error
-      expect(res.body.error).toBe('Error al obtener pagos');
-    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.payments.length).toBe(2); // Debe haber dos pagos
   });
+});
+
+describe('uploadReceiptFromUrl', () => {
+  it('should upload a receipt from URL if the file is a PDF', async () => {
+    const pdfUrl = 'http://example.com/file.pdf';
+    const response = await axios.get(pdfUrl, { responseType: 'stream' });
+
+    // Simular subir el archivo desde la URL
+    const res = await request(app)
+      .post('/api/upload-receipt')
+      .send({ pdfUrl })
+      .set('Authorization', 'Bearer fakeTokenWithAdminRole');
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe('Recibo subido correctamente');
+  });
+});
+
+describe('isSuperAdmin middleware', () => {
+  it('should allow access for superadmin', async () => {
+    const req = { user: { role: 'superadmin' } };
+    const res = {};
+    let nextCalled = false;
+    
+    const next = () => {
+      nextCalled = true;
+    };
+
+    isSuperAdmin(req, res, next);
+
+    expect(nextCalled).toBe(true);
+  });
+
+  it('should deny access for non-superadmin', () => {
+    const req = { user: { role: 'admin' } };
+    
+    const res = {
+      status: function(statusCode) {
+        this.statusCode = statusCode;
+        return this;
+      },
+      json: function(response) {
+        this.response = response;
+      }
+    };
+
+    const next = () => {};
+
+    isSuperAdmin(req, res, next);
+
+    expect(res.statusCode).toBe(403);
+    expect(res.response).toEqual({ message: 'Acceso denegado. Solo el superadministrador tiene acceso.' });
+  });
+});
+afterAll(async () => {
+  await sequelize.close(); //cierra la conexión después de los tests
 });

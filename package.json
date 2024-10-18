@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest --watchAll"
+    "test": "set NODE_OPTIONS=--experimental-vm-modules && jest"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,9 @@
     "socket.io": "^4.8.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.8",
+    "@babel/preset-env": "^7.25.8",
+    "babel-jest": "^29.7.0",
     "bcrypt": "^5.1.1",
     "jest": "^29.7.0",
     "mocha": "^10.7.3",
