@@ -1,22 +1,23 @@
-const authMiddleware = (roles = []) => {
-  return (req, res, next) => {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+import jwt from "jsonwebtoken";
 
-    if (!token) return res.status(401).json({ message: 'No autorizado. No se ha proporcionado un token.' });
+const SECRET_KEY = "tremendaclave";
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
 
-      if (!roles.includes(req.user.role)) {
-        return res.status(403).json({ message: 'No tienes los permisos necesarios.' });
-      }
-      
-      next();
-    } catch (error) {
-      return res.status(403).json({ message: 'Token inválido o expirado.' });
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers["authorization"]; //obtengo el encabezado de la autorizacion
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.split(" ")[1]; //extraigo el token después del bearer
+        jwt.verify(token, SECRET_KEY, (err, decoded) => {//verifico el token
+        if (err) {
+            return res.status(401).json({ msg: "Token no válido" });
+        }
+        req.user = decoded; //guardo el token decodificado en el objeto de solicitud
+        next();
+    });
+    } else {
+        return res.status(403).json({ msg: "No se proporcionó token" });
     }
-  };
 };
 
-export default authMiddleware;
+export default verifyToken;

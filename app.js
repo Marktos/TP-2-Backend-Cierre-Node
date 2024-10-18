@@ -39,7 +39,6 @@ async function startServer() {
         console.log('La sincronización fue exitosa');
         app.listen(PORT, () => {
             console.log(`Servidor corriendo y funcionando en el puerto ${PORT}`);
-            return createSuper();
         });
     } catch (error) {
         console.log('Error, no se pudo conectar a la base de datos!', error);
