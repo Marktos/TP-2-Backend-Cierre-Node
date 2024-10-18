@@ -16,12 +16,19 @@ app.use(cors());
 
 
 
-db.authenticate();
-console.log('Conexión a la base de datos establecida correctamente.');
+db.authenticate()
+  .then(() => {
+    console.log('Conexión a la base de datos establecida correctamente.');
 
-db.sync()
-.then(() => console.log('Base de datos sincronizada correctamente.'))
-.catch(err => console.error('No se pudo sincronizar la base de datos:', err));
+    // Sincronizar la base de datos, forzando la recreación de las tablas
+    return db.sync({ force: true });
+  })
+  .then(() => {
+    console.log('Base de datos sincronizada correctamente. Todas las tablas han sido recreadas.');
+  })
+  .catch(error => {
+    console.error('No se pudo sincronizar la base de datos:', error);
+  });
 
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
